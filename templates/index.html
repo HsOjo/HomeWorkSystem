@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>首页</title>
+</head>
+<body>
+<h1>欢迎，{{ user.username }}。</h1>
+<a href="{{ url_for('logout') }}">注销</a>
+<h1>作业列表</h1>
+{% if user.is_admin %}
+    <a href="{{ url_for('set_homework') }}">布置作业</a>
+{% endif %}
+<table>
+    <tr>
+        <th>作业名称</th>
+        <th>作业描述</th>
+        <th>操作</th>
+    </tr>
+    {% for i, v in homework %}
+        <tr>
+            <td>{{ v.name }}</td>
+            <td>
+                <pre>{{ v.description }}</pre>
+            </td>
+            <td>
+                <a href="{{ url_for('submit_homework', h_id=i) }}">提交</a>
+                {% if user.is_admin %}
+                    <a href="{{ url_for('view_homework', h_id=i) }}">检阅</a>
+                    <a href="{{ url_for('set_homework', h_id=i) }}">编辑</a>
+                    <a href="{{ url_for('remove_homework', h_id=i) }}">移除</a>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+</body>
+</html>

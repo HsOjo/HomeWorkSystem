@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>布置作业</title>
+</head>
+<body>
+<h1>布置作业</h1>
+<form method="post">
+    <label for="i_name">作业名称</label>
+    <input type="text" id="i_name" name="name" value="{{ item.name }}">
+    <br>
+    <label for="i_description">作业描述</label>
+    <textarea id="i_description" name="description">{{ item.description }}</textarea>
+    <br>
+    <input type="submit">
+</form>
+</body>
+</html>

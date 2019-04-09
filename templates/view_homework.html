@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>检阅作业</title>
+</head>
+<body>
+<h1>检阅作业</h1>
+<label for="i_name">作业名称</label>
+<input type="text" id="i_name" value="{{ item.name }}" readonly>
+<br>
+<label for="i_description">作业描述</label>
+<textarea id="i_description" readonly>{{ item.description }}</textarea>
+<br>
+<table>
+    <tr>
+        <td>序号</td>
+        <th>文件名称</th>
+        <th>提交用户名</th>
+        <th>操作</th>
+    </tr>
+    {% for i, v in files %}
+        <tr>
+            <td>{{ i }}</td>
+            <td>{{ v.name }}</td>
+            <td>{{ v.user }}</td>
+            <td>
+                <a href="{{ url_for('download_homework', h_id=item_id, f_id=i) }}">下载</a>
+                <a href="{{ url_for('delete_homework', h_id=item_id, f_id=i) }}">删除</a>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+</body>
+</html>
