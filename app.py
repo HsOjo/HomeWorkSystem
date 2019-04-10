@@ -88,17 +88,17 @@ def set_homework(h_id=None):
         return render_template('set_homework.html', **t_data)
     elif request.method == 'POST':
         form = request.form
-        hw_data = {
+        h_data = {
             'name': form['name'],
             'description': form['description'],
         }
 
         if h_id is None or not 0 <= h_id < len(data_homework):
-            hw_data['key'] = hashlib.md5(os.urandom(32)).hexdigest()  # use by storage.
-            os.makedirs('%s/%s' % (STORAGE_DIR, hw_data['key']))
-            data_homework.append(hw_data)
+            h_data['key'] = hashlib.md5(os.urandom(32)).hexdigest()  # use by storage.
+            os.makedirs('%s/%s' % (STORAGE_DIR, h_data['key']))
+            data_homework.append(h_data)
         else:
-            data_homework[h_id].update(hw_data)
+            data_homework[h_id].update(h_data)
 
         common.save_json(PATH_HOMEWORK, data_homework)
         return redirect('/index')
@@ -117,7 +117,7 @@ def submit_homework(h_id):
         files = request.files
         file = files['file']
         if file.filename != '':
-            hw_data = data_homework[h_id]  # type: dict
+            h_data = data_homework[h_id]  # type: dict
 
             f_data = {
                 'name': secure_filename(file.filename),
@@ -125,10 +125,10 @@ def submit_homework(h_id):
                 'file': hashlib.md5(os.urandom(32)).hexdigest(),
             }
 
-            os.makedirs('%s/%s' % (STORAGE_DIR, hw_data['key']), exist_ok=True)
-            file.save('%s/%s/%s' % (STORAGE_DIR, hw_data['key'], f_data['file']))
+            os.makedirs('%s/%s' % (STORAGE_DIR, h_data['key']), exist_ok=True)
+            file.save('%s/%s/%s' % (STORAGE_DIR, h_data['key'], f_data['file']))
 
-            p_storage_info = '%s/%s/info.json' % (STORAGE_DIR, hw_data['key'])
+            p_storage_info = '%s/%s/info.json' % (STORAGE_DIR, h_data['key'])
             storage_info = common.load_json(p_storage_info, [])  # type: list
             storage_info.append(f_data)
             common.save_json(p_storage_info, storage_info)
@@ -144,8 +144,8 @@ def remove_homework(h_id):
     if not current_user['is_admin']:
         return redirect('/login')
 
-    hw_data = data_homework.pop(h_id)
-    shutil.rmtree('%s/%s' % (STORAGE_DIR, hw_data['key']))
+    h_data = data_homework.pop(h_id)
+    shutil.rmtree('%s/%s' % (STORAGE_DIR, h_data['key']))
     common.save_json(PATH_HOMEWORK, data_homework)
     return redirect('/index')
 
@@ -156,8 +156,8 @@ def view_homework(h_id):
     if not current_user['is_admin']:
         return redirect('/login')
 
-    hw_data = data_homework[h_id]  # type: dict
-    p_storage_info = '%s/%s/info.json' % (STORAGE_DIR, hw_data['key'])
+    h_data = data_homework[h_id]  # type: dict
+    p_storage_info = '%s/%s/info.json' % (STORAGE_DIR, h_data['key'])
     storage_info = common.load_json(p_storage_info, [])  # type: list
     t_data = {
         'user': current_user,
@@ -174,11 +174,11 @@ def download_homework(h_id, f_id):
     if not current_user['is_admin']:
         return redirect('/login')
 
-    hw_data = data_homework[h_id]  # type: dict
-    p_storage_info = '%s/%s/info.json' % (STORAGE_DIR, hw_data['key'])
+    h_data = data_homework[h_id]  # type: dict
+    p_storage_info = '%s/%s/info.json' % (STORAGE_DIR, h_data['key'])
     storage_info = common.load_json(p_storage_info, [])  # type: list
     f_data = storage_info[f_id]  # type: dict
-    p_file = '%s/%s/%s' % (STORAGE_DIR, hw_data['key'], f_data['file'])
+    p_file = '%s/%s/%s' % (STORAGE_DIR, h_data['key'], f_data['file'])
 
     return send_file(p_file, attachment_filename=f_data['name'], as_attachment=True)
 
@@ -189,12 +189,12 @@ def delete_homework(h_id, f_id):
     if not current_user['is_admin']:
         return redirect('/login')
 
-    hw_data = data_homework[h_id]  # type: dict
-    p_storage_info = '%s/%s/info.json' % (STORAGE_DIR, hw_data['key'])
+    h_data = data_homework[h_id]  # type: dict
+    p_storage_info = '%s/%s/info.json' % (STORAGE_DIR, h_data['key'])
     storage_info = common.load_json(p_storage_info, [])  # type: list
     f_data = storage_info.pop(f_id)  # type: dict
     common.save_json(p_storage_info, storage_info)
-    p_file = '%s/%s/%s' % (STORAGE_DIR, hw_data['key'], f_data['file'])
+    p_file = '%s/%s/%s' % (STORAGE_DIR, h_data['key'], f_data['file'])
     os.unlink(p_file)
 
     return redirect(url_for('view_homework', h_id=h_id))
